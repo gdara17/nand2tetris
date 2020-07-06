@@ -1,0 +1,187 @@
+class TicTacToeBoard {
+    field Array matrix; 
+    field int boardSize, numFilledCells;
+
+    /** Constructs a new Tic-Tac-Toe board. */
+    constructor TicTacToeBoard new(int size) {
+        var int rowIndex, colIndex;
+        var Array row;
+        let rowIndex = 0;
+        let colIndex = 0;
+        let boardSize = size;
+        let numFilledCells = 0;
+
+        let matrix = Array.new(size);
+
+        while (rowIndex < size) {
+            let matrix[rowIndex] = Array.new(size);
+            let row = matrix[rowIndex];
+            while (colIndex < size) {
+                let row[colIndex] = -1;
+                let colIndex = colIndex + 1;
+            }
+            let rowIndex = rowIndex + 1;
+            let colIndex = 0;
+        }
+        
+        return this;
+    }
+
+    /** Sets (row, col) cell to specified value. */
+
+    method boolean set(int rowIndex, int colIndex, int value) {
+        var Array row;
+        var boolean empty;
+        let empty = isEmpty(rowIndex, colIndex);
+        if (empty) {
+            let row = matrix[rowIndex];
+            let row[colIndex] = value;
+            let numFilledCells = numFilledCells + 1;
+        }
+
+        return empty;
+    }
+
+    /** Returns true if no player has placed mark on cell (row, col). */
+    method boolean isEmpty(int rowIndex, int colIndex) {
+        var int cell;
+        let cell = get(rowIndex, colIndex);
+
+        return (cell = -1);
+    }
+
+    /** Returns value at cell (row, col). */
+
+    method int get(int rowIndex, int colIndex) {
+        var Array row;
+        var int value;
+
+        let row = matrix[rowIndex];
+        let value = row[colIndex];
+
+        return value;
+    }
+
+    method boolean isWin() {
+        var Array array;
+        var int rowIndex, colIndex;
+        let rowIndex = 0;
+        let colIndex = 0;
+
+        while (rowIndex < boardSize) {
+            let array = matrix[rowIndex];
+            if (uniformArray(array, boardSize)) {
+                return true;
+            }
+            let rowIndex = rowIndex + 1;
+        }
+
+        let array = Array.new(boardSize);
+
+        while (colIndex < boardSize) {
+            do getColumn(array, colIndex);
+            if (uniformArray(array, boardSize)) {
+                do array.dispose();
+                return true;
+            }
+            let colIndex = colIndex + 1;
+        }
+
+        do getDiagonal1(array);
+        if (uniformArray(array, boardSize)) {
+            do array.dispose();
+            return true;
+        }
+
+        do getDiagonal2(array);
+        if (uniformArray(array, boardSize)) {
+            do array.dispose();
+            return true;
+        }
+
+        do array.dispose();
+        return false;
+    }
+
+    method boolean isFull() {
+        return (numFilledCells = (boardSize * boardSize));
+    }
+
+    method void getDiagonal1(Array array) {
+        var Array row;
+        var int index;
+        let index = 0;
+
+        while (index < boardSize) {
+            let row = matrix[index];
+            let array[index] = row[index];
+            let index = index + 1;
+        }
+
+        return;
+    }
+
+    method void getDiagonal2(Array array) {
+        var Array row;
+        var int index;
+        let index = 0;
+
+        while (index < boardSize) {
+            let row = matrix[index];
+            let array[index] = row[((boardSize - index) - 1)];
+            let index = index + 1;
+        }
+
+        return;
+    }
+
+    method void getColumn(Array array, int colIndex) {
+        var Array row;
+        var int rowIndex;
+        let rowIndex = 0;
+
+        while (rowIndex < boardSize) {
+            let row = matrix[rowIndex];
+            let array[rowIndex] = row[colIndex];
+            let rowIndex = rowIndex + 1;
+        }
+
+        return;
+    }
+
+    /** Returns true if array contains the same elements except defaults (-1). */
+
+    method boolean uniformArray(Array array, int size) {
+        var int index, symbol;
+        let symbol = array[0];
+        while (index < size) {
+            if (~(symbol = array[index]) | (array[index] = -1)) {
+                return false;
+            }
+            let index = index + 1;
+        }
+
+        return true;
+    }
+
+    method int getSize() {
+        return boardSize;
+    }
+
+    /** Disposes this board. */
+    method void dispose() {
+        var int rowIndex;
+        var Array row;
+        let rowIndex = 0;
+
+        while (rowIndex < boardSize) {
+            let row = matrix[rowIndex];
+            do row.dispose();
+        }
+
+        do matrix.dispose();
+        do Memory.deAlloc(this);
+
+        return;
+    }
+}

@@ -1,0 +1,92 @@
+class TicTacToeGame {
+    field TicTacToeBoard board;
+    field TicTacToeCanvas canvas;
+    field int player;
+    field int boardSize;
+
+    /** Constructs a new Tic-Tac-Toe game. */
+    constructor TicTacToeGame new(int size) {
+        let boardSize = size;
+        let board = TicTacToeBoard.new(size);
+        let canvas = TicTacToeCanvas.new(board);
+        return this;
+    }
+
+    method void run() {
+        var int key;
+        var int cursorRow, cursorCol;
+        var boolean finished, updated;
+        let finished = false;
+        let key = 0;
+        let player = 1;
+
+        do canvas.init();
+        do canvas.displayText("X's Turn");
+
+        while (~finished) {
+            let updated = false;
+
+            while (key = 0) {
+                let key = Keyboard.keyPressed();
+            }
+            
+            if (key = 128) { let updated = board.set(cursorRow, cursorCol, player); } // enter
+            if ((key = 133) & ~(cursorRow = (boardSize - 1))) { let cursorRow = cursorRow + 1; } // down arrow
+            if ((key = 131) & ~(cursorRow = 0)) { let cursorRow = cursorRow - 1; } // up arrow
+            if ((key = 132) & ~(cursorCol = (boardSize - 1))) { let cursorCol = cursorCol + 1; } // right arrow
+            if ((key = 130) & ~(cursorCol = 0)) { let cursorCol = cursorCol - 1; } // left arrow
+            do canvas.updateCursor(cursorRow, cursorCol);
+
+            if (updated) {
+                do canvas.drawMark(cursorRow, cursorCol, player);
+                if (board.isWin()) {
+                    do printWinner();
+                    let finished = true;
+                } else {
+                    if (board.isFull()) {
+                        do canvas.displayText("Result: draw!");
+                        let finished = true;
+                    } else {
+                        do switchPlayer();
+                    }
+                }
+            }
+
+            // waits for the key to be released
+            while (~(key = 0)) {
+                let key = Keyboard.keyPressed();
+            }
+        }
+
+        return;
+    }
+
+    method void printWinner() {
+        if (player = 0) {
+            do canvas.displayText("Os Won! ");
+        } else {
+            do canvas.displayText("Xs Won! ");
+        }
+
+        return;
+    }
+
+    method void switchPlayer() {
+        if (player = 0) {
+            do canvas.displayText("X's Turn");
+            let player = 1;
+        } else {
+            do canvas.displayText("O's Turn");
+            let player = 0; 
+        }
+
+        return;
+    }
+
+    /** Disposes this game. */
+    method void dispose() {
+        do board.dispose();
+        do Memory.deAlloc(this);
+        return;
+    }
+}

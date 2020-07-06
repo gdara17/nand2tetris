@@ -1,0 +1,126 @@
+
+class TicTacToeCanvas {
+    field TicTacToeBoard model;
+    field int boardSize, padding, cellSize;
+    field int width, height, xStart, yStart;
+    field int prevCursorX, prevCursorY;
+    
+    /** Constructs a new Tic-Tac-Toe canvas. */
+    constructor TicTacToeCanvas new(TicTacToeBoard board) {
+        let model = board;
+        let boardSize = board.getSize();
+        let padding = 5;
+        let cellSize = 64;
+        let width = (cellSize * boardSize) + (padding * boardSize) - 1;
+        let height = (cellSize * boardSize) + (padding * boardSize) - 1;
+        let xStart = (512 - width) / 2;
+        let yStart = (256 - height) / 2;
+
+        return this;
+    }
+
+    method void init() {
+        var int x1, y1, x2, y2, xIter, yIter;
+        var int i;
+        let i = 1;
+
+        let x1 = xStart;
+        let y1 = yStart;
+        let x2 = x1 + width + 1;
+        let y2 = y1 + height + 1;
+        
+        do drawFrame(x1, y1, x2, y2);
+
+        let xIter = x1;
+        let yIter = y1;
+
+        while (i < boardSize) {
+            let xIter = xIter + cellSize + padding; 
+            do Screen.drawLine(xIter, y1, xIter, y2);
+            
+            let yIter = yIter + cellSize + padding;
+            do Screen.drawLine(x1, yIter, x2, yIter);
+            
+            let i = i + 1;
+        }
+
+        do updateCursor(0, 0);
+
+        return;
+    }
+
+    method void updateCursor(int row, int col) {
+        var int cursorX, cursorY;
+        let cursorX = getXbyCol(col);
+        let cursorY = getYbyRow(row);
+
+        do Screen.setColor(0);
+        do drawFrame(prevCursorX, prevCursorY, prevCursorX + cellSize - 1, prevCursorY + cellSize - 1);
+        do Screen.setColor(1);
+
+        do drawFrame(cursorX, cursorY, cursorX + cellSize - 1, cursorY + cellSize - 1);
+        
+        let prevCursorX = cursorX;
+        let prevCursorY = cursorY;
+
+        return;
+    }
+
+    method int getXbyCol(int col) {
+        return (xStart + (col * (cellSize + padding)) + (padding / 2) + 1);
+    }
+
+    method int getYbyRow(int row) {
+        return (yStart + (row * (cellSize + padding)) + (padding / 2) + 1);
+    }
+
+    method void drawFrame(int x1, int y1, int x2, int y2) {
+        do Screen.drawLine(x1, y1, x2, y1);
+        do Screen.drawLine(x2, y1, x2, y2);
+        do Screen.drawLine(x2, y2, x1, y2);
+        do Screen.drawLine(x1, y2, x1, y1);
+
+        return;
+    }
+
+    method void drawMark(int row, int col, int player) {
+        var int x, y, dx, dy;
+        let x = getXbyCol(col);
+        let y = getYbyRow(row);
+
+        let x = x + (cellSize / 10); // padding = cellSize / 10
+        let y = y + (cellSize / 10); // padding = cellSize / 10
+
+        if (player = 0) {
+            do drawCircle(x, y, x + ((cellSize * 8) / 10), y + ((cellSize * 8) / 10));
+        } else {
+            do drawCross(x, y, x + ((cellSize * 8) / 10), y + ((cellSize * 8) / 10));
+        }
+
+        return;
+    }
+
+    method void drawCross(int x1, int y1, int x2, int y2) {
+        do Screen.drawLine(x1, y1, x2, y2);
+        do Screen.drawLine(x1, y2, x2, y1);
+
+        return;
+    }
+
+    method void drawCircle(int x1, int y1, int x2, int y2) {
+        do Screen.drawCircle(x1 + ((x2 - x1) / 2), y1 + ((y2 - y1) / 2), (x2 - x1) / 2);
+
+        do Screen.setColor(0);
+        do Screen.drawCircle(x1 + ((x2 - x1) / 2), y1 + ((y2 - y1) / 2), ((x2 - x1) / 2) - 1);
+        do Screen.setColor(1);
+            
+        return;
+    }
+
+    method void displayText(String st) {
+        do Output.moveCursor(12, 5);
+        do Output.printString(st);
+
+        return;
+    }
+}
